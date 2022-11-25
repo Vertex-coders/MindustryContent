@@ -4,7 +4,12 @@ plugins {
 }
 
 group = "org.vertex.mindustry"
-version = "1.0"
+version = "1.1"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_18
+    targetCompatibility = JavaVersion.VERSION_18
+}
 
 repositories {
     mavenCentral()
@@ -19,20 +24,23 @@ dependencies {
 
 publishing {
     publications {
-        create<MavenPublication>("library") {
-            from(components["java"])
-        }
-    }
+        register<MavenPublication>("release") {
+            groupId = project.group.toString()
+            artifactId = "MindustryContent"
+            version = project.version.toString()
 
-    repositories {
-        maven {
-            url = uri("${buildDir}/publishing-repository")
+            afterEvaluate {
+                from(components["java"])
+            }
         }
     }
 }
 
 tasks.jar {
-    archiveFileName.set("Mindustry.jar")
     from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
 }
